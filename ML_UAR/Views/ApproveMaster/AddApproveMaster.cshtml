@@ -1,0 +1,457 @@
+﻿@{
+    ViewData["Title"] = "เพิ่มสายการอนุมัติ";
+
+    ViewData["Breadcrumb"] = new List<BreadcrumbModel> {
+        new BreadcrumbModel { Text = "ตั้งค่าสายการอนุมัติ", Link = "/ApproveMaster/TransactionApproveMaster" },
+        new BreadcrumbModel { Text = "เพิ่มสายการอนุมัติ" }
+    };
+}
+
+<form method="post" enctype="multipart/form-data" id="submit_form" asp-controller="ApproveMaster" asp-action="FormAddApproveMaster">
+    <div class="card">
+        <div class="card-header">
+            <b>เพิ่มสายการอนุมัติ</b>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <label for="txtApproveName" class="col-sm-3 col-form-label text-right">
+                    ชื่อสายการอนุมัติ : <span style="color:#ff0000;">*</span>
+                </label>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <input type="text" name="txtApproveName" id="txtApproveName" class="form-control" autocomplete="off" />
+                    </div>
+                </div>
+                <div class="col-sm-3"></div>
+            </div>
+
+            <div class="row mb-2">
+                <div class="col-sm-12 float-lg-right">
+                    <div class="btn-group float-lg-right">
+                        <button type="button" class="btn-defaul btn btn-outline-primary" id="btnAddApproveFlow" onClick="onAddApproveFlow()">
+                            <i class="fas fa-user-plus"></i> เพิ่มผู้ดำเนินการ/ผู้อนุมัติ
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tblApproveMaster" class="table table-striped table-hover table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="10%">ลำดับการอนุมัติ</th>
+                                <th width="10%">รหัสพนักงาน</th>
+                                <th width="15%">ชื่อ-นามสกุล</th>
+                                <th width="15%">E-mail</th>
+                                <th width="15%">ประเภทการอนุมัติ</th>
+                                <th width="15%">Backup E-mail</th>
+                                <th width="10%">สถานะ</th>
+                                <th width="10%">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-6">
+                    <div style="text-align:left;">
+                        <a href="/ApproveMaster/TransactionApproveMaster" class="btn btn-outline-dark" id="btnBack">
+                            <i class="fas fa-arrow-circle-left"></i> ย้อนกลับ
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-right">
+
+                        <button type="button" class="btn btn-outline-danger mr-3" id="btnReset" onclick="onResetClick()">
+                            <i class="fas fa-redo-alt"></i> รีเซ็ต
+                        </button>
+
+                        <button type="submit" class="btn btn-outline-success mr-3" id="btnSubmit" name="btnSubmit">
+                            <i class="fas fa-save"></i> บันทึก
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    @*
+    modal add approve flow
+    *@
+    <div class="modal fade" id="modalAddApproveFlow" role="dialog" tabindex="-1" aria-labelledby="modalAddApproveFlow" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-center ">
+                    <h4 class="modal-title"> เพิ่มผู้ดำเนินการ/ผู้อนุมัติ </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body modal-body-single">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="txtmodalApproveLevel">ลำดับดำเนินการ <span style="color:#ff0000;">*</span></label>
+                                <input type="text" class="form-control" id="txtmodalApproveLevel" name="txtmodalApproveLevel" autocomplete="off" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="ddlmodalPersonnelList">รหัสพนักงาน <span style="color:#ff0000;">*</span></label>
+                                @Html.DropDownList("ddlmodalPersonnelList",
+                                new SelectList(ViewBag.PersonnelList, "Value", "Text"),
+                                new
+                                {
+                                @class = "form-control select2bs4 select-placeholder",
+                                style = "width: 100%"
+                                }
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="ddlmodalApproveTypeList">ประเภท <span style="color:#ff0000;">*</span></label>
+                                @Html.DropDownList("ddlmodalApproveTypeList",
+                                new SelectList(ViewBag.ApproveTypeList, "Value", "Text"),
+                                new
+                                {
+                                @class = "form-control select2bs4 select-placeholder",
+                                style = "width: 100%"
+                                }
+                                )
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label for="txtmodalBackUpEmail">กรณีเร่งรีบ(ถ้ามี)</label>
+                                <input type="text" class="form-control" id="txtmodalBackUpEmail" name="txtmodalBackUpEmail" autocomplete="off" />
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group clearfix">
+                                <div class="icheck-primary d-inline">
+                                    <input type="checkbox" id="chbmodalisFinalApprove" name="chbmodalisFinalApprove">
+                                    <label for="chbmodalisFinalApprove">
+                                        ลำดับสุดท้าย
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group clearfix">
+                                <div class="icheck-success d-inline">
+                                    <input type="radio" name="raimodalStatus" checked="" id="raimodalEnable" value="E">
+                                    <label for="raimodalEnable">
+                                        ใช้งาน
+                                    </label>
+                                </div>
+                                <div class="icheck-danger d-inline">
+                                    <input type="radio" name="raimodalStatus" id="raimodalDisable" value="D">
+                                    <label for="raimodalDisable">
+                                        ไม่ใช้งาน
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer float-lg-right">
+                    <button type="submit" class="btn btn-outline-success mr-3" id="btnAddFlowonTbl" name="btnAddFlowonTbl">
+                        <i class="fas fa-plus-circle"></i> ยืนยัน
+                    </button>
+                    <button type="button" class="btn btn-outline-danger mr-3" data-dismiss="modal" aria-label="Close">
+                        <i class="fas fa-times-circle"></i> ยกเลิก
+                    </button>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    @*modal confirm save*@
+    <div class="modal fade" id="modalConfirmSave" style="display: none;" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b class="modal-title">ยืนยันการบันทึกข้อมูล</b>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align:center;">
+                    <h4>ต้องการบันทึกข้อมูลใช่หรือไม่ ?</h4>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                        <i class="fas fa-ban"></i> ยกเลิก
+                    </button>
+                    <button type="button" id="btnConfirmSave" onclick="onSaveForm()" class="btn btn-outline-success">
+                        <i class="fas fa-check-circle"></i> ดำเนินการ
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+
+</form>
+
+@section scripts {
+    <script>
+
+        $(document).ready(function () {
+
+            //$.validator.addMethod('select2Required', function (value, element) {
+            //    return value && value.trim() !== '';
+            //});
+
+            // trigger id btn for submitHandler
+            $('button[type="submit"]').on('click', function () {
+                $('#submit_form').data('submittedBy', this.id);
+            });
+
+            //initialize validate form
+            $('#submit_form').validate({
+                messages: {
+                    txtApproveName: { required: "กรุณากรอกชื่อสายการอนุมัติ" },
+                    txtmodalApproveLevel: { required: "กรุณากรอกลำดับการดำเนินการ", digits: "กรุณากรอกเฉพาะตัวเลข" },
+                    ddlmodalPersonnelList: { required: "กรุณาเลือกพนักงาน" },
+                    ddlmodalApproveTypeList: { required: "กรุณาเลือกประเภท" }
+                },
+                errorElement: 'span',
+                errorPlacement: function (error, element) {
+                    error.addClass('invalid-feedback');
+                    element.closest('.form-group').append(error);
+                },
+                highlight: function (element, errorClass, validClass) {
+                    $(element).addClass('is-invalid');
+                },
+                unhighlight: function (element, errorClass, validClass) {
+                    $(element).removeClass('is-invalid');
+                },
+                submitHandler: function (form) {
+                    var submitButtonId = $(form).data('submittedBy');
+
+                    if (submitButtonId === 'btnSubmit') {
+                        $("#modalConfirmSave").modal("show");
+                    }
+                    else if (submitButtonId === 'btnAddFlowonTbl') {
+                        onAddFlowonTbl();
+                    }
+                }
+            }); 
+
+            $("#btnSubmit").on("click", function () {
+
+                $("#txtApproveName").rules('add', {
+                    required: true
+                });
+
+                $("#txtmodalApproveLevel").rules('remove');
+                $("#ddlmodalPersonnelList").rules('remove');
+                $("#ddlmodalApproveTypeList").rules('remove');
+
+                $('#submit_form').valid();
+
+            })
+
+            $("#btnAddFlowonTbl").on("click", function () {
+
+                $("#txtmodalApproveLevel").rules('add', {
+                    required: true,
+                    digits: true
+                });
+                $("#ddlmodalPersonnelList").rules('add', {
+                    required: true
+                });
+                $("#ddlmodalApproveTypeList").rules('add', {
+                    required: true
+                });
+
+                $("#txtApproveName").rules('remove');
+
+                $('#submit_form').valid();
+            })
+
+
+            $('#ddlmodalPersonnelList').select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#modalAddApproveFlow')
+            });
+
+            $('#ddlmodalApproveTypeList').select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#modalAddApproveFlow')
+            });
+
+        });
+
+
+        function onAddApproveFlow() {
+            $('#submit_form').find('.is-invalid').removeClass('is-invalid');
+            $("#modalAddApproveFlow").modal("show");
+
+
+            $("#txtmodalApproveLevel").val("");
+            $("#ddlmodalPersonnelList").val("");
+            $("#ddlmodalApproveTypeList").val("");
+
+            $('#ddlmodalPersonnelList').select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#modalAddApproveFlow')
+            }).trigger('change');;
+
+            $('#ddlmodalApproveTypeList').select2({
+                theme: 'bootstrap4',
+                dropdownParent: $('#modalAddApproveFlow')
+            }).trigger('change');;
+
+            $("#txtmodalBackUpEmail").val("");
+
+            document.getElementById('raimodalEnable').checked = true;
+            document.getElementById('raimodalDisable').checked = false;
+
+            document.getElementById('chbmodalisFinalApprove').checked = false;
+
+        }
+
+        var counter = 1;
+
+        function onAddFlowonTbl() {
+
+            //console.log("ok valid");
+
+            var approve_level = $("#txtmodalApproveLevel").val();
+            var personnel_code = $("#ddlmodalPersonnelList").val();
+            var approve_type = $("#ddlmodalApproveTypeList").val();
+
+            $("#modalAddApproveFlow").modal("hide");
+
+            var approve_type_txt = $("#ddlmodalApproveTypeList option:selected").text();
+            var backup_email = $("#txtmodalBackUpEmail").val();
+            var status = $('input[name="raimodalStatus"]:checked').val();
+            var ststusdesc = "";
+            if (status == "E") {
+                ststusdesc = span_datatable("success", "fas fa-check", "ใช้งาน");
+            } else {
+                ststusdesc = span_datatable("danger", "fas fa-times", "ไม่ใช้งาน");
+            }
+            var isfinal = $('#chbmodalisFinalApprove').is(":checked") ? 1 : 0;
+
+            $.ajax({
+                url: "/Settings/getPersonnelDetail?personnel_code=" + personnel_code,
+                type: "get"
+            }).done(function (data) {
+
+                if (data != false) {
+
+                    $('<tr id="tbrow' + counter + '">' +
+                        '<td>' +
+                        approve_level +
+                        '</td>' +
+                        '<td>' +
+                        personnel_code +
+                        '</td>' +
+                        '<td>' +
+                        data.thname +
+                        '</td>' +
+                        '<td>' +
+                        data.e_mail +
+                        '</td>' +
+                        '<td>' +
+                        approve_type_txt +
+                        '</td>' +
+                        '<td>' +
+                        backup_email +
+                        '</td>' +
+                        '<td>' +
+                        ststusdesc +
+                        '</td>' +
+                        '<td>' +
+
+                        //'<button type="button" id="btnDelete' + counter + '" class="btn btn-xs btn-outline-danger" onclick="onDeleteTr(' + counter + ')" ><i class="fas fa-trash"></i> ลบ </button>' +
+                        //'<span type="button" class="badge bg-danger" onclick="onDeleteTr(' + counter + ')"><i class="fas fa-trash"></i> ลบ </span>' +
+                        '<button type="button" class="btn btn-sm mr-3 btn-outline-danger" onclick="onDeleteTr(' + counter + ')"><i class="fas fa-trash"></i> ลบข้อมูล</button>' +
+                        '<input type="hidden" id="txtApproveLevel' + counter + '" name="txtApproveLevel" value="' + approve_level + '" ></input>' +
+                        '<input type="hidden" id="txtPersonnelCode' + counter + '" name="txtPersonnelCode" value="' + personnel_code + '" ></input>' +
+                        '<input type="hidden" id="txtPersonnelName' + counter + '" value="' + data.thname + '"></input>' +
+                        '<input type="hidden" id="txtEmail' + counter + '" name="txtEmail" value="' + data.e_mail + '"></input>' +
+                        '<input type="hidden" id="txtApproveType' + counter + '" value="' + approve_type_txt + '"></input>' +
+                        '<input type="hidden" id="txtBackUPEmail' + counter + '" name="txtBackUPEmail" value="' + backup_email + '"></input>' +
+                        '<input type="hidden" id="txtStatus' + counter + '" name="txtStatus" value="' + status + '"></input>' +
+                        '<input type="hidden" id="txtApproveTypeID' + counter + '" name="txtApproveTypeID" value="' + approve_type + '"></input>' +
+                        '<input type="hidden" id="txtisFinal' + counter + '" name="txtisFinal" value="' + isfinal + '"></input>' +
+
+                        '</td>' +
+                        '</tr>').appendTo('#tblApproveMaster');
+
+                    counter++;
+                }
+            });
+        }
+
+        function onSaveForm() {
+
+            var values = $('#submit_form').serialize();
+
+            $.ajax({
+                url: "/ApproveMaster/FormAddApproveMaster",
+                type: "post",
+                data: values,
+            }).done(function (data) {
+
+                if (data.code == "200") {
+
+                    $("#modalConfirmSave").modal("hide");
+                    fnAlertSuccess(data.message, "/ApproveMaster/TransactionApproveMaster");
+
+                }
+                else {
+
+                    $("#modalConfirmSave").modal("hide");
+                    fnAlertError(data.message);
+                }
+
+            });
+
+        }
+
+
+        function onDeleteTr(counter) {
+            $('#tbrow' + counter).remove();
+            return false;
+        }
+
+        function onResetClick() {
+            location.reload();
+        }
+
+    </script>
+}

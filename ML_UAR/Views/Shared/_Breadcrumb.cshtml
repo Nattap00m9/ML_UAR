@@ -1,0 +1,10 @@
+﻿
+@if (ViewData["Breadcrumb"] != null)
+{
+    <ol class="breadcrumb float-sm-right">
+        @foreach (BreadcrumbModel item in (ViewData["Breadcrumb"] as List<BreadcrumbModel>))
+        {
+            <li class="breadcrumb-item"><a href="@item.Link">@item.Text</a></li>
+        }
+    </ol>
+}

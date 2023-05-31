@@ -1,0 +1,449 @@
+﻿@{
+    ViewData["Title"] = "ตั้งค่าตำแหน่งกับระบบ";
+
+    ViewData["Breadcrumb"] = new List<BreadcrumbModel> {
+        new BreadcrumbModel { Text = "ตั้งค่าตำแหน่งกับระบบ", Link = "/Settings/PositionMappingSystem" },
+        new BreadcrumbModel { Text = "เพิ่มตำแหน่งกับระบบ" }
+    };
+}
+
+<form id="submit_form" enctype="multipart/form-data" method="post">
+    <div class="card">
+        <div class="card-header">
+            <b>เพิ่มตำแหน่งกับระบบ</b>
+        </div>
+
+        <div class="card-body">
+
+            <div class="form-group row">
+
+                <label for="ddlSectionMasterList" class="col-sm-1 col-form-label text-center">
+                    ฝ่าย : <span style="color:#ff0000;">*</span>
+                </label>
+                <div class="col-sm-2">
+                    @Html.DropDownList("ddlSectionMasterList",
+                    new SelectList(ViewBag.SectionMasterList, "Value", "Text"),
+                    new
+                    {
+                    @class = "form-control select2bs4 select-placeholder"
+                    }
+                    )
+                </div>
+
+                <label for="ddlDepartMasterList" class="col-sm-1 col-form-label text-center">
+                    แผนก : <span style="color:#ff0000;">*</span>
+                </label>
+                <div class="col-sm-2">
+                    <select id="ddlDepartMasterList" name="ddlDepartMaster" class="form-control select2bs4" disabled></select>
+                </div>
+
+                <label for="ddlPositionMasterList" class="col-sm-1 col-form-label text-center">
+                    ตำแหน่ง : <span style="color:#ff0000;">*</span>
+                </label>
+                <div class="col-sm-2">
+                    <select id="ddlPositionMasterList" name="ddlposition_code" class="form-control select2bs4" disabled></select>
+                </div>
+
+
+                <div class="col-sm-1 text-center">
+                    <button class="btn-defaul btn btn-outline-info" type="button" id="btnAddSystem" onclick="onAddSystemClick()">
+                        <i class="fas fa-plus"></i> เพิ่มระบบ
+                    </button>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tblSystemMaster" class="table table-striped table-hover table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="10%">รหัสระบบ</th>
+                                <th width="20%">ชื่อระบบ</th>
+                                <th width="30%">รายละเอียดเพิ่มเติม</th>
+                                <th width="30%">สิทธิ์(ถ้ามี)</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-6">
+                    <div style="text-align:left;">
+                        <a href="/Settings/PositionMappingSystem" class="btn btn-outline-dark" id="btnBack">
+                            <i class="fas fa-arrow-circle-left"></i> ย้อนกลับ
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="text-right">
+                        <button type="button" class="btn btn-outline-danger mr-3" id="btnReset" onclick="onResetClick()">
+                            <i class="fas fa-redo-alt"></i> รีเซ็ต
+                        </button>
+
+                        <button type="submit" class="btn btn-outline-success mr-3" id="btnSubmit" name="btnSubmit">
+                            <i class="fas fa-save"></i> บันทึก
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @*modal add system*@
+    <div class="modal fade" id="modalAddSystem" role="dialog" tabindex="-1" aria-labelledby="modalAddSystem" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-center ">
+                    <h4 class="modal-title"> เพิ่มระบบ </h4>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+
+                <div class="modal-body modal-body-single">
+                    <table id="tblAddSystemList" class="table table-striped table-hover table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="1%"></th>
+                                <th width="10%">รหัสระบบ</th>
+                                <th width="25%">ชื่อระบบ</th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
+
+                <div class="modal-footer float-lg-right">
+                    <div id="BtnMdlAddSystem">
+                        <button type="button" class="btn btn-outline-success mr-3" id="btnAddSystemToTbl" name="btnAddSystemToTbl">
+                            <i class="fas fa-plus-circle"></i> ยืนยัน
+                        </button>
+                        <button type="button" class="btn btn-outline-danger mr-3" data-dismiss="modal" aria-label="Close">
+                            <i class="fas fa-times-circle"></i> ยกเลิก
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+    @*modal confirm save*@
+    <div class="modal fade" id="modalConfirmSave" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <b class="modal-title">ยืนยันการบันทึกข้อมูล</b>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="text-align:center;">
+                    <h4>ต้องการบันทึกข้อมูลใช่หรือไม่ ?</h4>
+                </div>
+                <div class="modal-footer justify-content-between">
+                    <button type="button" class="btn btn-outline-danger" data-dismiss="modal">
+                        <i class="fas fa-ban"></i> ยกเลิก
+                    </button>
+                    <button type="button" id="btnConfirmSave" onclick="onSaveForm()" class="btn btn-outline-success">
+                        <i class="fas fa-check-circle"></i> ดำเนินการ
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+</form>
+
+
+@section scripts{
+    <script>
+        var counter = 1;
+        var arrSystemId = [];
+        $(document).ready(function () {
+            fetchDdl();
+        })
+
+        // trigger id btn for submitHandler
+        $('button[type="submit"]').on('click', function () {
+            $('#submit_form').data('submittedBy', this.id);
+        });
+
+        $("#submit_form").validate({
+            messages: {
+                ddlSectionMasterList: { required: "กรุณาเลือกฝ่าย" },
+                ddlDepartMasterList: { required: "กรุณาเลือแผนก" },
+                ddlPositionMasterList: { required: "กรุณาเลือกตำแหน่ง" },
+                chbMdlSystem: { required: "กรุณาเพิ่มระบบ" }
+            },
+            errorElement: 'span',
+            errorPlacement: function (error, element) {
+                error.addClass('invalid-feedback');
+                element.closest('.form-group').append(error);
+            },
+            highlight: function (element, errorClass, validClass) {
+                $(element).addClass('is-invalid');
+            },
+            unhighlight: function (element, errorClass, validClass) {
+                $(element).removeClass('is-invalid');
+            },
+            submitHandler: function (form) {
+                var submitButtonId = $(form).data('submittedBy');
+
+                if (submitButtonId === 'btnSubmit') {
+                    $(document).ready(function () {
+
+                        var rowTbl = $('#tblSystemMaster tr').length;
+                        if (rowTbl <= 1) {
+                            Swal.fire({
+                                icon: 'error',
+                                title: "&nbsp;กรุณาเพิ่มระบบ",
+                                position: 'top-end',
+                                toast: true,
+                                showConfirmButton: false,
+                                timer: 2000
+                            })
+                        }
+                        else {
+                            $("#modalConfirmSave").modal("show");
+                        }
+                    })
+
+                }
+            }
+        });
+
+        $("#btnSubmit").on("click", function () {
+
+            $("#ddlSectionMasterList").rules('add',
+                {
+                    required: true
+                });
+            $("#ddlDepartMasterList").rules('add',
+                {
+                    required: true
+                });
+            $("#ddlPositionMasterList").rules('add',
+                {
+                    required: true
+                });
+            $('#submit_form').valid();
+
+        })
+
+        // detect/push to arrSystemId
+        $(document).on('change', 'input[name="chbMdlSystem"]', function () {
+
+            var isChecked = $(this).is(':checked');
+            var systemId = $(this).siblings('input[type="hidden"]').val();
+
+            if (isChecked) {
+                if (!arrSystemId.includes(systemId)) {
+                    arrSystemId.push(systemId);
+                }
+            }
+            else {
+                var index = arrSystemId.indexOf(systemId);
+                if (index !== -1) {
+                    arrSystemId.splice(index, 1);
+                }
+            }
+        });
+
+        // add new system to table with arrSystemId
+        $("#btnAddSystemToTbl").on("click", function () {
+
+            arrSystemId.forEach(function (systemId) {
+                if ($("#tblSystemMaster").find("td:contains('" + systemId + "')").length > 0) {
+                    return false;
+                }
+
+                var systemName = $("#systemName" + systemId).val();
+                var ddlrow = "ddlrole_id" + systemId;
+
+                $('<tr id="tbrow' + counter + '">' +
+                    '<td>' + systemId + '</td>' +
+                    '<td>' + systemName + '</td>' +
+                    '<td>' +
+                    '<input class="form-control" type="text" id="txtdescription' + systemId + '" name="txtdescription" />' +
+                    '</td>' +
+                    '<td>' +
+                    '<select id="' + ddlrow + '" name="ddlrole_id" class="form-control select2bs4"></select>' +
+                    '</td>' +
+                    '<td>' +
+                    '<button type="button" class="btn btn-sm mr-3 btn-outline-danger" onclick="onDeleteTr(' + counter + ',\'' + systemId + '\')"><i class="fas fa-trash"></i> ลบข้อมูล</button>' +
+                    '<input type="hidden" id="txtsystem_id' + systemId + '" name="txtsystem_id" value="' + systemId + '"/>' +
+                    '<input type="hidden" id="txtstatus' + systemId + '" name="txtstatus" value="E"/>' +
+                    '<input type="hidden" id="txtisUpdate' + systemId + '" name="txtisUpdate" value="0"/>' +
+                    '<input type="hidden" id="txtreason_code' + systemId + '" name="txtreason_code" />' +
+                    '<input type="hidden" id="txtremark' + systemId + '" name="txtremark" />' +
+                    '</td>' +
+                    '</tr>').appendTo('#tblSystemMaster');
+                counter++
+
+                //add option ddl role_id
+                $.ajax({
+                    url: "/Settings/getRoleMaster/?system_id=" + systemId,
+                    type: "get"
+                }).done(function (data) {
+                    if (data != false) {
+                        $("select[id=" + ddlrow + "]").empty();
+
+                        $("select[id=" + ddlrow + "]").append("<option value=''  selected>--- กรุณาเลือกข้อมูล ---</option>");
+                        $.each(data, function (i, v) {
+                            $("select[id=" + ddlrow + "]").append("<option value='" + v.role_id + "'>" + v.role_name + "</option>");
+                        });
+
+                        $('.select2bs4').select2({
+                            theme: 'bootstrap4'
+                        });
+                    }
+                })
+
+                $("#modalAddSystem").modal('hide');
+
+            })
+        })
+
+        var p_section;
+        var p_department;
+
+        function fetchDdl() {
+            $("#ddlSectionMasterList").on("change", function () {
+                p_section = $(this).val();
+
+                $.ajax({
+                    url: "/Settings/getDepartmentMaster?section_code=" + p_section,
+                    type: "get"
+                }).done(function (data) {
+
+                    $("#ddlDepartMasterList").empty();
+                    $('select[id="ddlDepartMasterList"]').prepend("<option value='' disabled selected>--- กรุณาเลือกข้อมูล ---</option>");
+
+                    $.each(data, function (i, v) {
+                        $('select[id="ddlDepartMasterList"]').append("<option value='" + v.depart_code + "'>" + v.depart_name + "</option>");
+                    })
+                    $("#ddlDepartMasterList").attr('disabled', false);
+                })
+            })
+
+            $("#ddlDepartMasterList").on("change", function () {
+                p_department = $(this).val();
+
+                $.ajax({
+                    url: "/Settings/getPositionMaster?depart_code=" + p_department,
+                    type: "get"
+                }).done(function (data) {
+
+                    $("#ddlPositionMasterList").empty();
+                    $('select[id="ddlPositionMasterList"]').prepend("<option value='' disabled selected>--- กรุณาเลือกข้อมูล ---</option>");
+
+                    $.each(data, function (i, v) {
+                        $('select[id="ddlPositionMasterList"]').append("<option value='" + v.position_code + "'>" + v.position_name + "</option>");
+                    })
+
+                    $("#ddlPositionMasterList").attr('disabled', false);
+                })
+
+            })
+        }
+
+        //modal add system
+        function onAddSystemClick() {
+            $("#modalAddSystem").modal('show');
+
+            $("#tblAddSystemList").DataTable({
+                "paging": true,
+                "lengthChange": false,
+                "searching": false,
+                "ordering": true,
+                "info": true,
+                "autoWidth": false,
+                "responsive": true,
+                "bDestroy": true,
+                "scrollX": false,
+                ajax: {
+                    url: "/Settings/GetSystemListMdl?system_id=" + arrSystemId,
+                    type: "get",
+                    headers: {
+                        "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                    },
+                    async: true
+                },
+                columns: [
+                    { data: null },
+                    { data: "system_id" },
+                    { data: "system_name" },
+                ],
+                columnDefs: [
+                    {
+                        targets: 0,
+                        render: function (data, type, row) {
+                            var id = row.system_id;
+                            var link = '';
+
+                            link += '<input class="form-control" style="width:1.5rem; height:1.5rem;" type="checkbox" id="chbMdlSystem' + id + '" name="chbMdlSystem" />';
+                            link += '<input type="hidden" id="systemId' + id + '" value="' + id + '"/>';
+                            link += '<input type="hidden" id="systemName' + id + '" value="' + row.system_name + '"/>';
+
+                            $(document).ready(function () {
+                                var chb = $("#chbMdlSystem" + id);
+                                chb.prop('checked', false);
+                                chb.attr('checked', false);
+                            })
+
+                            return link;
+
+
+
+                        }
+                    }
+                ],
+            });
+        }
+
+        function onSaveForm() {
+            var values = $("#submit_form").serialize();
+
+            $.ajax({
+                url: "/Settings/FormAddPositionMappingSystem/",
+                type: "post",
+                data: values,
+            }).done(function (data) {
+                if (data.code == "200") {
+
+                    $("#modalConfirmSave").modal("hide");
+                    fnAlertSuccess(data.message, "/Settings/PositionMappingSystemr");
+
+                }
+                else {
+
+                    $("#modalConfirmSave").modal("hide");
+                    fnAlertError(data.message);
+                }
+            })
+
+
+        }
+
+        function onDeleteTr(counter, id) {
+            var index = arrSystemId.indexOf(id);
+
+            if (index !== -1) {
+                arrSystemId.splice(index, 1);
+            }
+
+            $('#tbrow' + counter).remove();
+
+            return false;
+        }
+
+    </script>
+}

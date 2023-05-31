@@ -1,0 +1,134 @@
+﻿@{
+    ViewData["Title"] = "ดูรายละเอียดสายการอนุมัติ";
+
+    ViewData["Breadcrumb"] = new List<BreadcrumbModel> {
+        new BreadcrumbModel { Text = "ตั้งค่าสายการอนุมัติ", Link = "/ApproveMaster/TransactionApproveMaster" },
+        new BreadcrumbModel { Text = "ดูรายละเอียดสายการอนุมัติ" }
+    };
+}
+
+
+<form method="post" enctype="multipart/form-data">
+    <div class="card">
+        <div class="card-header">
+            <b>ดูรายละเอียดสายการอนุมัติ</b>
+        </div>
+
+        <div class="card-body">
+            <div class="row">
+                <label for="txtApproveName" class="col-sm-3 col-form-label text-right">
+                    ชื่อสายการอนุมัติ :
+                </label>
+                <div class="col-sm-6">
+                    <div class="form-group">
+                        <input type="text" class="form-control" value="@ViewBag.approve_master_name" autocomplete="off" readonly />
+                        <input type="hidden" class="form-control" value="@ViewBag.approve_master_id" autocomplete="off" readonly />
+                    </div>
+                </div>
+                <div class="col-sm-3">
+                    <div class="form-group col-form-label clearfix">
+                        <div class="icheck-success d-inline">
+                            <input type="radio" name="raiApproveMasterStatus" id="raiApproveMasterEnable" value="E" @ViewBag.status_enable disabled>
+                            <label for="raiApproveMasterEnable">
+                                ใช้งาน
+                            </label>
+                        </div>
+                        <div class="icheck-danger d-inline">
+                            <input type="radio" name="raiApproveMasterStatus" id="raiApproveMasterDisable" value="D" @ViewBag.status_disable disabled>
+                            <label for="raiApproveMasterDisable">
+                                ไม่ใช้งาน
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                    <table id="tblApproveFlow" class="table table-striped table-hover table-bordered" width="100%">
+                        <thead>
+                            <tr>
+                                <th width="10%">ลำดับการอนุมัติ</th>
+                                <th width="10%">รหัสพนักงาน</th>
+                                <th width="15%">ชื่อ-นามสกุล</th>
+                                <th width="20%">E-mail</th>
+                                <th width="15%">ประเภทการอนุมัติ</th>
+                                <th width="20%">Backup E-mail</th>
+                                <th width="10%">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="card-footer">
+            <div class="row">
+                <div class="col-6">
+                    <div style="text-align:left;">
+                        <a href="/ApproveMaster/TransactionApproveMaster" class="btn btn-outline-dark" id="btnBack">
+                            <i class="fas fa-arrow-circle-left"></i> ย้อนกลับ
+                        </a>
+                    </div>
+                </div>
+                <div class="col-6">
+                </div>
+            </div>
+        </div>
+    </div>
+
+   
+</form>
+
+@section scripts {
+    <script>
+        $(document).ready(function () {
+            $("#tblApproveFlow").DataTable({
+            "paging": true,
+            "lengthChange": false,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": false,
+            "responsive": true,
+            "bDestroy": true,
+            "scrollX": false,
+            ajax: {
+                url: "/ApproveMaster/GetApproveFlowTrans",
+                type: "post",
+                data: { approve_master_id: @ViewBag.approve_master_id },
+                headers: {
+                    "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val()
+                },
+                async: true
+            },
+            columns: [
+                { data: "approve_level" },
+                { data: "personnel_code" },
+                { data: "thname" },
+                { data: "e_mail" },
+                { data: "aprvtype_name_th" },
+                { data: "backup_email" },
+                { data: "status" },
+            ],
+            columnDefs: [
+                {
+                    targets: 6,
+                    render: function (data, type, row) {
+                        if (data == "E") {
+                            return span_datatable("success", "fas fa-check", "ใช้งาน");
+                        }
+                        else {
+                            return span_datatable("danger", "fas fa-times", "ไม่ใช้งาน");
+                        }
+                    }
+                },
+            ],
+        });
+        });
+
+
+    </script>
+}

@@ -1,0 +1,86 @@
+﻿.ms-parent label span {
+    font-weight: lighter;
+}
+
+.content-header {
+    padding: .5rem .5rem;
+}
+
+.text-right {
+    text-align:right;
+}
+
+@font-face {
+    font-family: "kanitregular";
+    src: url("../fonts/kanit-light-webfont.eot");
+    src: url("../fonts/kanit-light-webfont.eot?#iefix") format("embedded-opentype"), url("../fonts/kanit-light-webfont.ttf") format("truetype");
+    font-weight: 300;
+    font-style: normal;
+}
+
+body {
+    font-family: "kanitregular", sans-serif !important;
+    -webkit-backface-visibility: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    /*line-height: 1;*/
+}
+
+.sidebar-dark-primary .nav-sidebar > .nav-item > .nav-link.active, .sidebar-light-primary .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #F5EBEB !important;
+    color: #0d135c !important;
+}
+
+[class*=sidebar-dark-] .nav-treeview > .nav-item > .nav-link.active, [class*=sidebar-dark-] .nav-treeview > .nav-item > .nav-link.active:focus, [class*=sidebar-dark-] .nav-treeview > .nav-item > .nav-link.active:hover {
+    background-color: #F5EBEB !important;
+    color: #0d135c !important;
+}
+
+.brand-link {
+    display: block !important;
+    font-size: 1.25rem !important;
+    line-height: 2 !important;
+    padding: .8125rem .1rem !important;
+    transition: width .3s ease-in-out !important;
+    white-space: nowrap !important;
+}
+
+.brand-link .brand-image {
+    float: left !important;
+    line-height: .8 !important;
+    margin-left: .5rem !important;
+    margin-right: .5rem !important;
+    margin-top: -3px !important;
+    max-height: 50px !important;
+    width: auto !important;
+}
+
+.overlay {
+    background: #f9f6f3;
+    display: none;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    opacity: 0.5;
+}
+
+.imgloading {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 5%;
+}
+
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.img-style {
+    width: 30px;
+    padding-bottom: inherit;
+    padding-left: inherit;
+}
